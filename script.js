@@ -1,29 +1,27 @@
 // Создание игрового поля 3 х 3.
-const Gameboard = (function() {
+function Gameboard() {
   const board = [];
 
-  const makeBoard = () => {
-    for (let i = 0; i < 3; i++) {
-      board[i] = [];
-      for (let j = 0; j < 3; j++) {
-        board[i].push(Cell());
-      };
-    };
-  };
+  for (let i = 0; i < 3; i++) {
+    board[i] = [];
+    for (let j = 0; j < 3; j++) {
+      board[i].push(Cell());
+    }
+  }
 
   const getBoard = () => board;
 
   const makeMarker = (row, column, player) => {
     board[row][column].addMarker(player);
-  };
-  
+  }
+
   const printBoard = () => {
     const boardWithMarkers = board.map((row) => row.map((cell) => cell.getValue()));
     console.log(boardWithMarkers);
   };
 
-  return {makeBoard, getBoard, makeMarker, printBoard};
-})();
+  return {getBoard, makeMarker, printBoard};
+};
 
 // Добавление ячейки со значением " ", Х или О в игровое поле
 function Cell() {
@@ -46,14 +44,20 @@ function GameController() {
 // const GameController = (function () {
   const players = [
     {
-      name: 'Player One',
+      name: 'Danya',
       marker: 'X'
     },
     {
-      name: 'Player Two',
+      name: 'Nastya',
       marker: 'O'
     }
   ];
+
+  // players[0].name = prompt('Name')
+  // players[1].name = prompt('Name')
+
+  const board = Gameboard();
+  const currentBoard = board.getBoard();
 
   let activePlayer = players[0];
 
@@ -63,30 +67,32 @@ function GameController() {
   const getActivePlayer = () => activePlayer;
 
   const printNewRound = () => {
-    Gameboard.printBoard();
+    board.printBoard();
     console.log(`${getActivePlayer().name}'s turn.`);
   };
 
   let round = 0;
+  let gameOver = false;
+  let tie = false;
+
   const oneMoreRound = () => ++round;
   const getRound = () => round;
-  const currentBoard = Gameboard.getBoard();
-  // const gameOver = () => 
+  const isGameOver = () => gameOver;
+  const isTie = () => tie;
 
   const playRound = (row, column) => {
+    console.log(`${getActivePlayer().name}'s marks into row ${row}, column ${column}`);
 
-    const currentStatus = currentBoard[row][column].getValue();
+    const currentCell = currentBoard[row][column].getValue();
+      if (currentCell !== ' ') {
+        alert('Already marked. Try another!');
+        console.log('Already marked. Try another!');
+        return;
+      };
 
-    console.log(`${getActivePlayer().name}'s mark into row ${row}, column ${column}`);
-    
-    if ((currentStatus !== 'X') && (currentStatus !== 'O')) {
-      Gameboard.makeMarker(row, column, getActivePlayer().marker);
-    } else {
-      console.log('Already Marked. Try another.');
-      return;
-    }
+    board.makeMarker(row, column, getActivePlayer().marker);
 
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       if ((currentBoard[i][0].getValue() !== ' ')
       && (currentBoard[i][0].getValue() === currentBoard[i][1].getValue())
       && (currentBoard[i][0].getValue() === currentBoard[i][2].getValue()) ||
@@ -100,48 +106,62 @@ function GameController() {
       && (currentBoard[0][2].getValue() === currentBoard[1][1].getValue())
       && (currentBoard[0][2].getValue() === currentBoard[2][0].getValue())) {
         console.log(`${getActivePlayer().name} is winner! Congratulations!`);
-        Gameboard.printBoard();
-        return;
+        board.printBoard();
+        gameOver = true;
+        // console.log(gameOver);
       };
     };
-    oneMoreRound();
+    
+    
 
-// Проверка на ничью
-    if (getRound() === 9) {
-      console.log('It\'s tie');
-      Gameboard.printBoard();
-      return;
+    if (gameOver) {
+      console.log('Game is over! Start new game!');
+    } else {
+      switchPlayerTurn();
+      printNewRound();
     };
 
-    switchPlayerTurn();
-    printNewRound();
+    oneMoreRound();
+
+    if (getRound() === 9) {
+      console.log('It\'s a tie');
+      board.printBoard();
+      tie = true;
+    };
   };
 
   console.log('Start game!');
-  Gameboard.makeBoard();
   printNewRound();
 
   return {
     playRound,
     getActivePlayer,
-    getBoard: Gameboard.getBoard
+    getBoard: board.getBoard,
+    isGameOver,
+    isTie
   };
-};
+}
 
-const game = GameController();
-
-Создание UI
+// Создание UI
 const ScreenController = (function() {
   const game = GameController();
   const playerTurnDiv = document.querySelector('.turn');
   const boardDiv = document.querySelector('.board');
+  const newGame = document.querySelector('.game');
 
   const updateScreen = () => {
     boardDiv.textContent = ' ';
     const board = game.getBoard();
     const activePlayer = game.getActivePlayer();
 
-    playerTurnDiv.textContent = `${activePlayer.name} turn`;
+    playerTurnDiv.textContent = `${activePlayer.name}'s turn`;
+    if (game.isGameOver()) {
+      playerTurnDiv.textContent = `${activePlayer.name} wins`;
+    }
+
+    if (game.isTie()) {
+      playerTurnDiv.textContent = 'It\'s tie';
+    }
 
     board.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
@@ -158,11 +178,16 @@ const ScreenController = (function() {
   function clickHandlerBoard(e) {
     const selectedRow = e.target.dataset.row;
     const selectedColumn = e.target.dataset.column;
-    game.playRound(selectedRow, selectedColumn);
-    updateScreen();
+    if ((!game.isGameOver()) && (!game.isTie())) {
+      game.playRound(selectedRow, selectedColumn);
+      updateScreen();
+    }
   }
 
   boardDiv.addEventListener("click", clickHandlerBoard);
-  updateScreen();
-  
+  updateScreen(); 
+
+  newGame.addEventListener('click', () => {
+    location.reload();
+  })
 })();

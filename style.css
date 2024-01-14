@@ -1,3 +1,27 @@
+body {
+  box-sizing: border-box;
+  background-color: black;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: black;
+}
+
+h1, h2, h3 {
+  color: white;
+}
+
+.game {
+  margin: 15px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  border-style: none;
+  font-size: 1rem;
+}
+
 .board {
   display: grid;
   height: 300px;
@@ -6,7 +30,7 @@
   grid-template-rows: repeat(3, 1fr);
   border: 5px solid black;
   gap: 5px;
-  background-color: rgb(46, 13, 41);
+  background-color: rgb(0, 0, 0);
 }
 
 .cell {
@@ -15,7 +39,7 @@
   align-items: center;
   text-align: center;
   font-size: 4rem;
-  background: rgb(237, 236, 250);
+  background: rgb(255, 255, 255);
   border-style: none;
   padding: 0;
   font-weight: bold;
