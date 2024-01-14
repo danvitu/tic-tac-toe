@@ -1,4 +1,4 @@
-// Создание игрового поля 3 х 3.
+// Create gameboard 3x3
 function Gameboard() {
   const board = [];
 
@@ -23,7 +23,7 @@ function Gameboard() {
   return {getBoard, makeMarker, printBoard};
 };
 
-// Добавление ячейки со значением " ", Х или О в игровое поле
+// Add cell with ' ', 'X' or 'O' value
 function Cell() {
   let value = ' ';
 
@@ -39,22 +39,18 @@ function Cell() {
   };
 }
 
-// Управление игровым процессом 
+// Control game flow and state
 function GameController() {
-// const GameController = (function () {
   const players = [
     {
-      name: 'Danya',
+      name: 'Player one',
       marker: 'X'
     },
     {
-      name: 'Nastya',
+      name: 'Player two',
       marker: 'O'
     }
   ];
-
-  // players[0].name = prompt('Name')
-  // players[1].name = prompt('Name')
 
   const board = Gameboard();
   const currentBoard = board.getBoard();
@@ -108,11 +104,8 @@ function GameController() {
         console.log(`${getActivePlayer().name} is winner! Congratulations!`);
         board.printBoard();
         gameOver = true;
-        // console.log(gameOver);
       };
     };
-    
-    
 
     if (gameOver) {
       console.log('Game is over! Start new game!');
@@ -145,9 +138,15 @@ function GameController() {
 // Создание UI
 const ScreenController = (function() {
   const game = GameController();
+
+  const newGame = document.querySelector('.game');
+  newGame.addEventListener('click', () => {
+    location.reload();
+  });
+
   const playerTurnDiv = document.querySelector('.turn');
   const boardDiv = document.querySelector('.board');
-  const newGame = document.querySelector('.game');
+
 
   const updateScreen = () => {
     boardDiv.textContent = ' ';
@@ -178,7 +177,7 @@ const ScreenController = (function() {
   function clickHandlerBoard(e) {
     const selectedRow = e.target.dataset.row;
     const selectedColumn = e.target.dataset.column;
-    if ((!game.isGameOver()) && (!game.isTie())) {
+    if (!game.isGameOver() && !game.isTie()) {
       game.playRound(selectedRow, selectedColumn);
       updateScreen();
     }
@@ -187,7 +186,4 @@ const ScreenController = (function() {
   boardDiv.addEventListener("click", clickHandlerBoard);
   updateScreen(); 
 
-  newGame.addEventListener('click', () => {
-    location.reload();
-  })
 })();
